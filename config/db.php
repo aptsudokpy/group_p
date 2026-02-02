@@ -2,7 +2,7 @@
 // config/db.php
 $host = "localhost";
 $user = "root";
-$pass = "";
+$pass = "123456789";
 $dbname = "group_p";
 
 try {
