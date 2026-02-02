@@ -1,4 +1,8 @@
 <?php 
+// 1. ต้องเริ่ม Session ก่อนเสมอ ไม่งั้นเช็ค Admin ไม่ได้
+session_start();
+
+// เปิดแสดง Error (เอาไว้ดูตอนแก้บั๊ก ถ้าเสร็จแล้วค่อยลบออกได้)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -7,7 +11,8 @@ require_once '../config/db.php';
 
 // ตรวจสอบสิทธิ์ Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../user_interface/login.php");
+    // 2. แก้ Path ให้ถอยกลับไป 1 ขั้นเพื่อหาไฟล์ login.php
+    header("Location: ../login.php"); 
     exit();
 }
 
@@ -16,6 +21,7 @@ if (isset($_POST['save_report'])) {
     $uid = $_POST['user_id'];
     $msg = $_POST['admin_message'];
     
+    // ใช้ชื่อตาราง users ตัวพิมพ์เล็ก (เพื่อรองรับ Linux/Cloud)
     $stmt = $conn->prepare("UPDATE users SET admin_message = ? WHERE id = ?");
     if ($stmt->execute([$msg, $uid])) {
         echo "<script>alert('✅ บันทึกรายงานเรียบร้อย'); window.location='manage_users.php';</script>";
@@ -27,6 +33,7 @@ if (isset($_GET['delete_id'])) {
     $id = $_GET['delete_id'];
     $check = $conn->prepare("SELECT role FROM users WHERE id = ?");
     $check->execute([$id]);
+    // ป้องกันไม่ให้ลบ Admin ด้วยกันเอง
     if ($check->fetchColumn() !== 'admin') {
         $conn->prepare("DELETE FROM users WHERE id = ?")->execute([$id]);
         echo "<script>alert('ลบผู้ใช้งานเรียบร้อย'); window.location='manage_users.php';</script>";
@@ -178,6 +185,7 @@ $users = $stmt->fetchAll();
                     </div>
                     <div class="modal-body">
                         <?php 
+                            // ใช้ users (ตัวเล็ก) ตามมาตรฐาน Linux
                             $stmt_o = $conn->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC");
                             $stmt_o->execute([$u['id']]);
                             $user_orders = $stmt_o->fetchAll();
@@ -194,6 +202,7 @@ $users = $stmt->fetchAll();
                                         <td>฿<?php echo number_format($order['total_price'], 2); ?></td>
                                         <td>
                                             <?php 
+                                                // หมายเหตุ: โค้ดนี้ (match) ต้องใช้ PHP เวอร์ชั่น 8.0 ขึ้นไป
                                                 $status_color = match($order['status']) {
                                                     'pending' => 'bg-warning',
                                                     'preparing' => 'bg-info',
