@@ -1,0 +1,85 @@
+/* ===== Navbar Style ===== */
+.navbar {
+  background-color: rgba(36, 40, 50, 1) !important;
+  background-image: linear-gradient(
+    139deg,
+    rgba(36, 40, 50, 1) 0%,
+    rgba(36, 40, 50, 1) 0%,
+    rgba(37, 28, 40, 1) 100%
+  );
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* โลโก้ */
+.navbar-brand {
+  color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: 0.3s;
+}
+
+.navbar-brand:hover {
+  color: #bd89ff !important;
+  transform: translateY(-1px);
+}
+
+/* ลิงก์เมนู */
+.navbar .nav-link {
+  color: #7e8590 !important;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+/* Hover Effect แบบเดียวกับ .card */
+.navbar .nav-link:hover {
+  background-color: #5353ff;
+  color: #ffffff !important;
+  transform: translate(1px, -1px);
+}
+
+/* ปุ่ม Login */
+.navbar .btn-outline-light {
+  border-color: #bd89ff;
+  color: #bd89ff !important;
+  transition: 0.3s;
+}
+
+.navbar .btn-outline-light:hover {
+  background-color: #bd89ff;
+  color: #1c1c1c !important;
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+  background-color: rgba(36, 40, 50, 1);
+  border: 1px solid #42434a;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* Dropdown item */
+.dropdown-item {
+  color: #7e8590;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.dropdown-item:hover {
+  background-color: #5353ff;
+  color: #ffffff;
+  transform: translate(1px, -1px);
+}
+
+/* ปุ่มออกจากระบบ */
+.dropdown-item.text-danger:hover {
+  background-color: #8e2a2a;
+  color: #ffffff;
+}
+
+/* เส้นคั่น */
+.dropdown-divider {
+  border-top: 1px solid #42434a;
+}
