@@ -36,8 +36,8 @@ if (isset($_POST['register_admin'])) {
                 
                 if ($stmt->execute([$username, $hash_password, $fullname])) {
                     $success = "✅ สมัคร Admin สำเร็จ! (คนที่ " . ($admin_count + 1) . "/5)";
-                    // รอ 2 วินาทีแล้วเด้งไปหน้า Login Admin
-                    header("refresh:2; url=login_admin.php"); 
+                    // รอ 2 วินาทีแล้วเด้งไปหน้า Login
+                    header("refresh:2; url=../user_interface/login.php"); 
                 } else {
                     $error = "เกิดข้อผิดพลาด โปรดลองใหม่";
                 }

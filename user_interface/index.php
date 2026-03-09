@@ -1,14 +1,4 @@
 <?php 
-session_start();
-
-// --- เพิ่มส่วนนี้: เช็คว่า Login หรือยัง ---
-if (!isset($_SESSION['user_id'])) {
-    // ถ้ายังไม่มี session user_id (ยังไม่ล็อกอิน) ให้ดีดไปหน้า login ทันที
-    header("Location: login.php");
-    exit; // สำคัญมาก! ต้องสั่งปิดการทำงานต่อทันที
-}
-// ------------------------------------
-
 require_once '../config/db.php'; 
 
 // ... (โค้ดส่วนที่เหลือเหมือนเดิม) ...
@@ -52,15 +42,16 @@ $cats = $conn->query("SELECT * FROM categories")->fetchAll();
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/cyberpunk-theme.css">
     
     <style>
         /* --- GLOBAL THEME --- */
         :root {
-            --primary-glow: #3b82f6;
-            --accent-color: #00d2ff;
-            --dark-bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text-main: #f8fafc;
+            --primary-glow: #00f2ff;
+            --accent-color: #ff3333;
+            --dark-bg: #050a14;
+            --card-bg: rgba(13, 22, 38, 0.7);
+            --text-main: #ffffff;
         }
 
         body {
@@ -108,7 +99,7 @@ $cats = $conn->query("SELECT * FROM categories")->fetchAll();
         }
 
         .text-primary-gradient {
-            background: linear-gradient(to right, #00d2ff, #3b82f6);
+            background: linear-gradient(to right, #00f2ff, #ff3333);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 800;
@@ -174,14 +165,14 @@ $cats = $conn->query("SELECT * FROM categories")->fetchAll();
             font-family: 'Orbitron', sans-serif;
             font-size: 1.2rem;
             font-weight: bold;
-            color: #10b981; 
-            text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+            color: #00f2ff; 
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
         }
 
         /* >>>>>> BUTTON STYLES: BUBBLES ANIMATION <<<<<< */
         .bubbles {
             --c1: #ffffff;      /* สีตัวหนังสือตอน Hover (ขาว) */
-            --c2: #3b82f6;      /* สีหลักของปุ่ม (ฟ้า) */
+            --c2: #00f2ff;      /* สีหลักของปุ่ม (ฟ้า) */
             --size-letter: 14px; /* ขนาดฟอนต์ (ปรับให้พอดีปุ่ม) */
             
             padding: 0.6em 1.4em;

@@ -1,6 +1,15 @@
 <?php 
-session_start(); // อย่าลืม session_start() ถ้าใน db.php ยังไม่มี
 require_once '../config/db.php'; 
+
+// ตรวจสอบ login ก่อนเพิ่มสินค้าลงตะกร้า
+if (isset($_POST['action']) && $_POST['action'] == 'add') {
+    if (!isset($_SESSION['user_id'])) {
+        // ยังไม่ login ให้ set flag และ redirect ไป login
+        $_SESSION['need_login_alert'] = true;
+        header("Location: login.php");
+        exit();
+    }
+}
 
 // --- Logic เดิมของระบบตะกร้า (ไม่แตะต้อง Logic) ---
 
@@ -59,6 +68,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'remove') {
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/cyberpunk-theme.css">
 
     <style>
         /* --- THEME CONFIG --- */
@@ -77,6 +87,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'remove') {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            padding-top: 70px;
         }
 
         .font-tech { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
