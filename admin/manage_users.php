@@ -35,9 +35,9 @@ if (isset($_GET['delete_id'])) {
     // ตรวจสอบว่าไม่ใช่ admin
     if ($role !== 'admin') {
         try {
-            // 1. ลบออเดอร์ที่เกี่ยวข้อง
-            $stmt_order = $conn->prepare("DELETE FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE user_id = ?)");
-            $stmt_order->execute([$id]);
+            // 1. ลบรายละเอียดออเดอร์ (order_details)
+            $stmt_details = $conn->prepare("DELETE FROM order_details WHERE order_id IN (SELECT id FROM orders WHERE user_id = ?)");
+            $stmt_details->execute([$id]);
             
             // 2. ลบออเดอร์
             $stmt_orders = $conn->prepare("DELETE FROM orders WHERE user_id = ?");
