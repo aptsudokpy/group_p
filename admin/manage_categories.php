@@ -17,6 +17,17 @@ if (isset($_POST['add_category'])) {
     }
 }
 
+if (isset($_POST['edit_category'])) {
+    $id = $_POST['edit_id'];
+    $name = $_POST['edit_name'];
+    if (!empty($name)) {
+        $stmt = $conn->prepare("UPDATE categories SET name = ? WHERE id = ?");
+        if ($stmt->execute([$name, $id])) {
+            $msg = "✅ แก้ไขประเภท '$name' เรียบร้อย";
+        }
+    }
+}
+
 if (isset($_GET['delete_id'])) {
     $id = $_GET['delete_id'];
     $stmt = $conn->prepare("DELETE FROM categories WHERE id = ?");
@@ -166,13 +177,43 @@ $categories = $stmt->fetchAll();
                                         <td class="fw-bold" style="color: var(--neon-blue);">#<?php echo $c['id']; ?></td>
                                         <td><?php echo $c['name']; ?></td>
                                         <td class="text-center">
-                                            <a href="manage_categories.php?delete_id=<?php echo $c['id']; ?>" 
-                                               class="btn btn-sm btn-outline-danger px-3" 
-                                               onclick="return confirm('ยืนยันที่จะลบหมวดหมู่นี้?');">
-                                                <i class="fas fa-trash-alt me-1"></i> ลบ
-                                            </a>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-warning px-3" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $c['id']; ?>">
+                                                    <i class="fas fa-edit me-1"></i> แก้ไข
+                                                </button>
+                                                <a href="manage_categories.php?delete_id=<?php echo $c['id']; ?>" 
+                                                   class="btn btn-sm btn-outline-danger px-3" 
+                                                   onclick="return confirm('ยืนยันที่จะลบหมวดหมู่นี้?');">
+                                                    <i class="fas fa-trash-alt me-1"></i> ลบ
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
+
+                                    <!-- Modal แก้ไขประเภท -->
+                                    <div class="modal fade" id="editModal<?php echo $c['id']; ?>" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content bg-dark border-secondary">
+                                                <div class="modal-header border-secondary">
+                                                    <h5 class="modal-title" style="color: var(--neon-blue);">แก้ไขหมวดหมู่</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form action="manage_categories.php" method="POST">
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="edit_id" value="<?php echo $c['id']; ?>">
+                                                        <div class="mb-3">
+                                                            <label class="form-label text-gray small">ชื่อหมวดหมู่</label>
+                                                            <input type="text" name="edit_name" class="form-control" value="<?php echo $c['name']; ?>" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-secondary">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                                        <button type="submit" name="edit_category" class="btn btn-neon-blue">บันทึกการแก้ไข</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
@@ -181,5 +222,7 @@ $categories = $stmt->fetchAll();
                 </div>
             </div> </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
