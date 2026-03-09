@@ -30,9 +30,29 @@ if (isset($_GET['delete_id'])) {
     $id = $_GET['delete_id'];
     $check = $conn->prepare("SELECT role FROM users WHERE id = ?");
     $check->execute([$id]);
-    if ($check->fetchColumn() !== 'admin') {
-        $conn->prepare("DELETE FROM users WHERE id = ?")->execute([$id]);
-        echo "<script>alert('ลบผู้ใช้งานเรียบร้อย'); window.location='manage_users.php';</script>";
+    $role = $check->fetchColumn();
+    
+    // ตรวจสอบว่าไม่ใช่ admin
+    if ($role !== 'admin') {
+        try {
+            // 1. ลบออเดอร์ที่เกี่ยวข้อง
+            $stmt_order = $conn->prepare("DELETE FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE user_id = ?)");
+            $stmt_order->execute([$id]);
+            
+            // 2. ลบออเดอร์
+            $stmt_orders = $conn->prepare("DELETE FROM orders WHERE user_id = ?");
+            $stmt_orders->execute([$id]);
+            
+            // 3. ลบผู้ใช้
+            $stmt_user = $conn->prepare("DELETE FROM users WHERE id = ?");
+            $stmt_user->execute([$id]);
+            
+            echo "<script>alert('✅ ลบข้อมูลลูกค้าและประวัติการสั่งซื้อเรียบร้อย'); window.location='manage_users.php';</script>";
+        } catch (PDOException $e) {
+            echo "<script>alert('❌ เกิดข้อผิดพลาด: " . htmlspecialchars($e->getMessage()) . "'); window.location='manage_users.php';</script>";
+        }
+    } else {
+        echo "<script>alert('❌ ไม่สามารถลบแอดมินได้'); window.location='manage_users.php';</script>";
     }
 }
 
