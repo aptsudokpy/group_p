@@ -8,6 +8,37 @@ if (!isset($_GET['id'])) {
 
 $order_id = $_GET['id'];
 
+// สถานะและตัวเลือกที่ใช้ในระบบ (ตรงกับ manage_orders.php)
+$status_options = [
+    'pending' => '⏳ รอตรวจสอบการชำระเงิน',
+    'paid' => '💰 ชำระเงินสำเร็จ',
+    'delivered' => '✅ จัดส่งสำเร็จ'
+];
+
+// ประมวลผลการอัปเดตสถานะ
+if (isset($_POST['update_status'])) {
+    $new_status = $_POST['status'];
+    $stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
+    if ($stmt->execute([$new_status, $order_id])) {
+        $msg = "✅ อัปเดตสถานะออเดอร์ #$order_id เป็น '" . $status_options[$new_status] . "' แล้ว";
+        // รีเฟรชหน้าเพื่อแสดงสถานะใหม่
+        header("refresh:1; url=order_detail.php?id=$order_id");
+    } else {
+        $error = "❌ เกิดข้อผิดพลาดในการอัปเดตสถานะ";
+    }
+}
+
+// ประมวลผลการยกเลิกออเดอร์
+if (isset($_POST['cancel_order'])) {
+    $stmt = $conn->prepare("UPDATE orders SET status = 'cancelled' WHERE id = ?");
+    if ($stmt->execute([$order_id])) {
+        $msg = "⚠️ ยกเลิกคำสั่งซื้อ #$order_id เรียบร้อยแล้ว";
+        header("refresh:1; url=order_detail.php?id=$order_id");
+    } else {
+        $error = "❌ เกิดข้อผิดพลาดในการยกเลิกออเดอร์";
+    }
+}
+
 // 1. ดึงข้อมูลหัวบิล (Order Info) + ข้อมูลลูกค้า
 $sql = "SELECT orders.*, users.fullname, users.address, users.username 
         FROM orders 
@@ -106,6 +137,84 @@ $items = $stmt_items->fetchAll();
         .info-label { color: var(--text-gray); font-size: 0.9rem; }
         .info-value { color: #fff; font-weight: 500; }
 
+        /* Status Management Controls */
+        .select-container {
+            width: 100%;
+            cursor: pointer;
+            position: relative;
+            transition: 300ms;
+            color: white;
+        }
+
+        .selected-box {
+            background-color: #2a2f3b;
+            padding: 8px 12px;
+            border-radius: 5px;
+            position: relative;
+            z-index: 10;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.1);
+            min-height: 38px;
+        }
+
+        .arrow-icon {
+            height: 10px;
+            width: 20px;
+            fill: white;
+            transition: 300ms;
+            transform: rotate(-90deg);
+            flex-shrink: 0;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            border-radius: 5px;
+            padding: 5px;
+            background-color: #2a2f3b;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: 300ms;
+            z-index: 100;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            margin-top: 2px;
+        }
+
+        .select-container:hover .options-list {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .select-container:hover .arrow-icon {
+            transform: rotate(0deg);
+        }
+
+        .option-item {
+            border-radius: 5px;
+            padding: 8px;
+            transition: 300ms;
+            background-color: #2a2f3b;
+            font-size: 13px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .option-item:hover {
+            background-color: #323741;
+            color: var(--neon-blue);
+        }
+
         @media print {
             .sidebar, .btn-secondary, .btn-outline-dark, .mt-3.text-end { display: none !important; }
             body { background: #fff !important; color: #000 !important; }
@@ -142,6 +251,18 @@ $items = $stmt_items->fetchAll();
             </a>
         </div>
 
+        <?php if(isset($msg)): ?>
+            <div class="alert alert-success bg-success text-white border-0 shadow mb-4">
+                <i class="fas fa-check-circle me-2"></i><?php echo $msg; ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if(isset($error)): ?>
+            <div class="alert alert-danger bg-danger text-white border-0 shadow mb-4">
+                <i class="fas fa-exclamation-circle me-2"></i><?php echo $error; ?>
+            </div>
+        <?php endif; ?>
+
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="content-card h-100">
@@ -158,9 +279,54 @@ $items = $stmt_items->fetchAll();
                             <div class="info-value"><?php echo date('d/m/Y H:i', strtotime($order['order_date'])); ?></div>
                         </div>
                         <div class="mb-3">
-                            <div class="info-label">สถานะปัจจุบัน</div>
-                            <span class="status-badge"><?php echo strtoupper($order['status']); ?></span>
+                            <div class="info-label mb-2">สถานะปัจจุบัน</div>
+                            <span class="status-badge">
+                                <?php echo $status_options[$order['status']] ?? strtoupper($order['status']); ?>
+                            </span>
                         </div>
+
+                        <!-- Status Management Controls -->
+                        <hr class="border-secondary opacity-25">
+                        <div class="mb-3">
+                            <div class="info-label mb-2">เปลี่ยนสถานะ</div>
+                            <form action="order_detail.php?id=<?php echo $order_id; ?>" method="POST">
+                                <div class="select-container mb-2">
+                                    <div class="selected-box">
+                                        <span><?php echo $status_options[$order['status']] ?? strtoupper($order['status']); ?></span>
+                                        <svg class="arrow-icon" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M0 0 L10 0 L5 10 Z" />
+                                        </svg>
+                                    </div>
+                                    <div class="options-list">
+                                        <?php foreach($status_options as $key => $label): ?>
+                                            <?php if($key !== $order['status']): ?>
+                                                <button type="submit" name="update_status" value="<?php echo $key; ?>" class="option-item">
+                                                    <?php echo $label; ?>
+                                                </button>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="status" id="statusInput" value="<?php echo $order['status']; ?>">
+                                <script>
+                                    document.querySelectorAll('.option-item').forEach(btn => {
+                                        btn.addEventListener('click', function(e) {
+                                            const status = this.getAttribute('value');
+                                            document.getElementById('statusInput').value = status;
+                                        });
+                                    });
+                                </script>
+                            </form>
+                        </div>
+
+                        <?php if($order['status'] !== 'cancelled'): ?>
+                            <form action="order_detail.php?id=<?php echo $order_id; ?>" method="POST" class="mt-2">
+                                <button type="submit" name="cancel_order" class="btn btn-sm btn-outline-danger w-100" onclick="return confirm('ยืนยันการยกเลิกคำสั่งซื้อนี้?');">
+                                    <i class="fas fa-times me-1"></i>ยกเลิกออเดอร์
+                                </button>
+                            </form>
+                        <?php endif; ?>
+
                         <hr class="border-secondary opacity-25">
                         <div>
                             <div class="info-label mb-2"><i class="fas fa-map-marker-alt me-1"></i> ที่อยู่จัดส่ง</div>
