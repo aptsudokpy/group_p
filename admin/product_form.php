@@ -245,7 +245,7 @@ if (isset($_POST['save_product'])) {
 
                         <div class="col-md-12">
                             <label class="form-label">รูปภาพสินค้า</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
+                            <input type="file" name="image" class="form-control">
                             <?php if($image): ?>
                                 <div class="mt-3">
                                     <p class="small text-muted mb-2">รูปภาพปัจจุบัน:</p>
