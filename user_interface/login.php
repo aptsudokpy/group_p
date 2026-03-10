@@ -261,6 +261,54 @@ if (isset($_SESSION['need_login_alert']) && $_SESSION['need_login_alert']) {
             transform: translateY(0);
         }
 
+        .back-btn {
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            color: var(--cyber-blue);
+            border: 2px solid var(--cyber-blue);
+            border-radius: 4px;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 12px;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 242, 255, 0.2);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.3);
+            border-color: var(--cyber-red);
+            color: var(--cyber-red);
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        .back-btn:active {
+            transform: translateY(0);
+        }
+
         .login-footer {
             text-align: center;
             margin-top: 30px;
@@ -347,6 +395,10 @@ if (isset($_SESSION['need_login_alert']) && $_SESSION['need_login_alert']) {
                     <button type="submit" name="login" class="login-btn">
                         <i class="fas fa-sign-in-alt me-2"></i>LOGIN NOW
                     </button>
+
+                    <a href="index.php" class="back-btn">
+                        <i class="fas fa-home me-2"></i>BACK TO SHOP
+                    </a>
 
                     <div class="login-footer">
                         <span style="color: rgba(0, 242, 255, 0.5); font-size: 11px;">ยังไม่มีบัญชี?</span><br>
