@@ -52,6 +52,8 @@ $cats = $conn->query("SELECT * FROM categories")->fetchAll();
     <title>จัดการสินค้า - Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     
     <style>
         :root {
@@ -131,6 +133,56 @@ $cats = $conn->query("SELECT * FROM categories")->fetchAll();
 
         .badge-cat { background: rgba(83, 83, 255, 0.2); color: var(--neon-blue); border: 1px solid var(--neon-blue); }
         
+        /* DataTables Custom Styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            background: transparent !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-gray) !important;
+            padding: 6px 12px !important;
+            margin: 2px !important;
+            border-radius: 5px !important;
+            transition: all 0.3s !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: var(--accent-blue) !important;
+            color: #fff !important;
+            box-shadow: 0 0 10px rgba(83, 83, 255, 0.3) !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.active {
+            background: var(--accent-blue) !important;
+            color: #fff !important;
+            box-shadow: 0 0 15px rgba(83, 83, 255, 0.4) !important;
+        }
+        
+        .dataTables_wrapper .dataTables_filter input {
+            background: rgba(0,0,0,0.2) !important;
+            border: 1px solid var(--border-color) !important;
+            color: #fff !important;
+            padding: 8px 12px !important;
+            border-radius: 5px !important;
+        }
+        
+        .dataTables_wrapper .dataTables_filter input:focus {
+            background: rgba(0,0,0,0.3) !important;
+            border-color: var(--neon-blue) !important;
+            box-shadow: 0 0 10px rgba(0,210,255,0.2) !important;
+            color: #fff !important;
+        }
+        
+        .dataTables_wrapper .dataTables_length select {
+            background: rgba(0,0,0,0.2) !important;
+            border: 1px solid var(--border-color) !important;
+            color: #fff !important;
+            padding: 6px 10px !important;
+            border-radius: 5px !important;
+        }
+        
+        .dataTables_wrapper .dataTables_info {
+            color: var(--text-gray) !important;
+        }
+        
     </style>
 </head>
 <body>
@@ -178,34 +230,16 @@ $cats = $conn->query("SELECT * FROM categories")->fetchAll();
                 </div>
             </div>
 
-            <div class="content-card mb-4 py-3">
-                <form action="manage_products.php" method="GET" class="row g-3 align-items-center">
-                    <?php if($cat_filter): ?>
-                        <input type="hidden" name="cat_id" value="<?php echo $cat_filter; ?>">
-                    <?php endif; ?>
-                    <div class="col-auto"><label class="fw-bold text-gray"><i class="fas fa-search"></i> ค้นหา:</label></div>
-                    <div class="col-md-5">
-                        <input type="text" name="search" class="form-control" placeholder="ชื่ออาวุธที่ต้องการหา..." value="<?php echo htmlspecialchars($search); ?>">
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-neon-blue px-4">ค้นหา</button>
-                        <?php if($search || $cat_filter): ?>
-                            <a href="manage_products.php" class="btn btn-outline-secondary">ล้างค่า</a>
-                        <?php endif; ?>
-                    </div>
-                </form>
-            </div>
-
             <div class="content-card">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table id="productsTable" class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
-                                <th width="100">รูปภาพ</th>
+                                <th>รูปภาพ</th>
                                 <th>ชื่ออาวุธ / สินค้า</th>
                                 <th>หมวดหมู่</th>
                                 <th>ราคา</th>
-                                <th width="180" class="text-center">จัดการ</th>
+                                <th class="text-center">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -260,5 +294,53 @@ $cats = $conn->query("SELECT * FROM categories")->fetchAll();
             </div>
         </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        $('#productsTable').DataTable({
+            responsive: true,
+            lengthChange: true,
+            searching: true,
+            ordering: true,
+            paging: true,
+            info: true,
+            pageLength: 10,
+            language: {
+                "sEmptyTable": "ไม่พบข้อมูลสินค้า",
+                "sInfo": "แสดง _START_ ถึง _END_ จากทั้งหมด _TOTAL_ รายการ",
+                "sInfoEmpty": "แสดง 0 ถึง 0 จากทั้งหมด 0 รายการ",
+                "sInfoFiltered": "(กรองจากทั้งหมด _MAX_ รายการ)",
+                "sLengthMenu": "แสดง _MENU_ รายการ",
+                "sLoadingRecords": "กำลังโหลด...",
+                "sProcessing": "กำลังประมวลผล...",
+                "sSearch": "<i class='fas fa-search'></i> ค้นหา:",
+                "sZeroRecords": "ไม่พบข้อมูลที่ตรงกัน",
+                "oPaginate": {
+                    "sFirst": "หน้าแรก",
+                    "sLast": "หน้าสุดท้าย",
+                    "sNext": "ถัดไป",
+                    "sPrevious": "ก่อนหน้า"
+                }
+            },
+            dom: '<"row"<"col-md-6"l><"col-md-6"f>>' +
+                 '<"row"<"col-12"tr>>' +
+                 '<"row"<"col-md-6"i><"col-md-6"p>>',
+            columnDefs: [
+                {
+                    targets: 4,
+                    orderable: false,
+                    searchable: false
+                }
+            ]
+        });
+    });
+    </script>
 </body>
 </html>

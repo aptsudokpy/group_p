@@ -81,6 +81,8 @@ $users = $stmt->fetchAll();
     <title>จัดการลูกค้า - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     <style>
         :root {
             --bg-dark:      #0f121a;
@@ -154,6 +156,56 @@ $users = $stmt->fetchAll();
 
         /* ── Modal Body (profile card) ── */
         .profile-modal-body    { background: #fff; border-radius: 0 0 14px 14px; }
+
+        /* DataTables Custom Styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            background: transparent !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-gray) !important;
+            padding: 6px 12px !important;
+            margin: 2px !important;
+            border-radius: 5px !important;
+            transition: all 0.3s !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: var(--accent-blue) !important;
+            color: #fff !important;
+            box-shadow: 0 0 10px rgba(83, 83, 255, 0.3) !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.active {
+            background: var(--accent-blue) !important;
+            color: #fff !important;
+            box-shadow: 0 0 15px rgba(83, 83, 255, 0.4) !important;
+        }
+        
+        .dataTables_wrapper .dataTables_filter input {
+            background: rgba(0,0,0,0.2) !important;
+            border: 1px solid var(--border-color) !important;
+            color: #fff !important;
+            padding: 8px 12px !important;
+            border-radius: 5px !important;
+        }
+        
+        .dataTables_wrapper .dataTables_filter input:focus {
+            background: rgba(0,0,0,0.3) !important;
+            border-color: var(--neon-blue) !important;
+            box-shadow: 0 0 10px rgba(0,210,255,0.2) !important;
+            color: #fff !important;
+        }
+        
+        .dataTables_wrapper .dataTables_length select {
+            background: rgba(0,0,0,0.2) !important;
+            border: 1px solid var(--border-color) !important;
+            color: #fff !important;
+            padding: 6px 10px !important;
+            border-radius: 5px !important;
+        }
+        
+        .dataTables_wrapper .dataTables_info {
+            color: var(--text-gray) !important;
+        }
     </style>
 </head>
 <body>
@@ -196,7 +248,7 @@ $users = $stmt->fetchAll();
 
         <div class="content-card">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table id="usersTable" class="table table-hover">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -429,6 +481,52 @@ $users = $stmt->fetchAll();
 
 <?php endforeach; ?>
 
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#usersTable').DataTable({
+            responsive: true,
+            lengthChange: true,
+            searching: true,
+            ordering: true,
+            paging: true,
+            info: true,
+            pageLength: 10,
+            language: {
+                "sEmptyTable": "ไม่พบข้อมูลลูกค้า",
+                "sInfo": "แสดง _START_ ถึง _END_ จากทั้งหมด _TOTAL_ รายการ",
+                "sInfoEmpty": "แสดง 0 ถึง 0 จากทั้งหมด 0 รายการ",
+                "sInfoFiltered": "(กรองจากทั้งหมด _MAX_ รายการ)",
+                "sLengthMenu": "แสดง _MENU_ รายการ",
+                "sLoadingRecords": "กำลังโหลด...",
+                "sProcessing": "กำลังประมวลผล...",
+                "sSearch": "<i class='fas fa-search'></i> ค้นหา:",
+                "sZeroRecords": "ไม่พบข้อมูลที่ตรงกัน",
+                "oPaginate": {
+                    "sFirst": "หน้าแรก",
+                    "sLast": "หน้าสุดท้าย",
+                    "sNext": "ถัดไป",
+                    "sPrevious": "ก่อนหน้า"
+                }
+            },
+            dom: '<"row"<"col-md-6"l><"col-md-6"f>>' +
+                 '<"row"<"col-12"tr>>' +
+                 '<"row"<"col-md-6"i><"col-md-6"p>>',
+            columnDefs: [
+                {
+                    targets: 4,
+                    orderable: false,
+                    searchable: false
+                }
+            ]
+        });
+    });
+</script>
 </body>
 </html>
