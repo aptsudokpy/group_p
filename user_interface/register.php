@@ -16,7 +16,11 @@ if (isset($_POST['register'])) {
         $sql = "INSERT INTO users (username, password, fullname, address, role) VALUES (?, ?, ?, ?, 'user')";
         $stmt = $conn->prepare($sql);
         if ($stmt->execute([$username, $password, $fullname, $address])) {
-            header("Location: login.php");
+            // แสดง Alert แจ้งเตือนแล้วเด้งไปหน้า Login
+            echo "<script>
+                alert('🎉 สมัครบัญชีเสร็จสิ้น!\\n\\nยินดีต้อนรับเข้าสู่สินค้อน\\nกรุณากรอกข้อมูลเข้าสู่ระบบ');
+                window.location.href='login.php';
+            </script>";
             exit();
         } else {
             $error = "เกิดข้อผิดพลาดในการเชื่อมต่อวงจร โปรดลองใหม่";
